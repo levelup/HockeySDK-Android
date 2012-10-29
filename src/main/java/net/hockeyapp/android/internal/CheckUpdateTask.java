@@ -161,7 +161,7 @@ public class CheckUpdateTask extends AsyncTask<String, String, JSONArray>{
   protected URLConnection createConnection(URL url) throws IOException {
     URLConnection connection = url.openConnection();
     connection.addRequestProperty("User-Agent", "Hockey/Android");
-    connection.setRequestProperty("connection", "close");
+    //doesn't work through a proxy because of ISSUE #44137 https://android-review.googlesource.com/#/c/44137/ connection.setRequestProperty("connection", "close");
     return connection;
   }
 
