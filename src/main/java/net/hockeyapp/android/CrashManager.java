@@ -30,11 +30,8 @@ import android.util.Log;
 /**
  * <h4>Description</h4>
  * 
- * The crash manager sets an exception handler to catch all unhandled 
- * exceptions. The handler writes the stack trace and additional meta data to 
- * a file. If it finds one or more of these files at the next start, it shows 
- * an alert dialog to ask the user if he want the send the crash data to 
- * HockeyApp. 
+ * The crash manager sets an exception handler to catch all unhandled exceptions. The handler writes the stack trace and additional meta data to a file. If it
+ * finds one or more of these files at the next start, it shows an alert dialog to ask the user if he want the send the crash data to HockeyApp.
  * 
  * <h4>License</h4>
  * 
@@ -62,124 +59,133 @@ import android.util.Log;
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  * </pre>
- *
+ * 
  * @author Thomas Dohmke
  **/
 public class CrashManager {
-  /**
-   * App identifier from HockeyApp.
-   */
-  private static String identifier = null;
-  
-  /**
-   * URL of HockeyApp service.
-   */
-  private static String urlString = null;
+	/**
+	 * App identifier from HockeyApp.
+	 */
+	private static String identifier = null;
 
-  /**
-   * Registers new crash manager and handles existing crash logs.
-   * 
-   * @param context The context to use. Usually your Activity object.
-   * @param appIdentifier App ID of your app on HockeyApp.
-   */
-  public static void register(Context context, String appIdentifier) {
-    register(context, Constants.BASE_URL, appIdentifier, null);
-  }
+	/**
+	 * URL of HockeyApp service.
+	 */
+	private static String urlString = null;
 
-  /**
-   * Registers new crash manager and handles existing crash logs.
-   * 
-   * @param context The context to use. Usually your Activity object.
-   * @param appIdentifier App ID of your app on HockeyApp.
-   * @param listener Implement for callback functions.
-   */
-  public static void register(Context context, String appIdentifier, CrashManagerListener listener) {
-    register(context, Constants.BASE_URL, appIdentifier, listener);
-  }
+	/**
+	 * Registers new crash manager and handles existing crash logs.
+	 * 
+	 * @param context
+	 *            The context to use. Usually your Activity object.
+	 * @param appIdentifier
+	 *            App ID of your app on HockeyApp.
+	 */
+	public static void register(Context context, String appIdentifier) {
+		register(context, Constants.BASE_URL, appIdentifier, null);
+	}
 
-  /**
-   * Registers new crash manager and handles existing crash logs.
-   * 
-   * @param context The context to use. Usually your Activity object.
-   * @param urlString URL of the HockeyApp server.
-   * @param appIdentifier App ID of your app on HockeyApp.
-   * @param listener Implement for callback functions.
-   */
-  public static void register(Context context, String urlString, String appIdentifier, CrashManagerListener listener) {
-    initialize(context, urlString, appIdentifier, listener, false);
-    execute(context, listener);
-  }
+	/**
+	 * Registers new crash manager and handles existing crash logs.
+	 * 
+	 * @param context
+	 *            The context to use. Usually your Activity object.
+	 * @param appIdentifier
+	 *            App ID of your app on HockeyApp.
+	 * @param listener
+	 *            Implement for callback functions.
+	 */
+	public static void register(Context context, String appIdentifier, CrashManagerListener listener) {
+		register(context, Constants.BASE_URL, appIdentifier, listener);
+	}
 
-  /**
-   * Initializes the crash manager, but does not handle crash log. Use this 
-   * method only if you want to split the process into two parts, i.e. when
-   * your app has multiple entry points. You need to call the method 'execute' 
-   * at some point after this method. 
-   * 
-   * @param context The context to use. Usually your Activity object.
-   * @param appIdentifier App ID of your app on HockeyApp.
-   * @param listener Implement for callback functions.
-   */
-  public static void initialize(Context context, String appIdentifier, CrashManagerListener listener) {
-    initialize(context, Constants.BASE_URL, appIdentifier, listener, true);
-  }
+	/**
+	 * Registers new crash manager and handles existing crash logs.
+	 * 
+	 * @param context
+	 *            The context to use. Usually your Activity object.
+	 * @param urlString
+	 *            URL of the HockeyApp server.
+	 * @param appIdentifier
+	 *            App ID of your app on HockeyApp.
+	 * @param listener
+	 *            Implement for callback functions.
+	 */
+	public static void register(Context context, String urlString, String appIdentifier, CrashManagerListener listener) {
+		initialize(context, urlString, appIdentifier, listener, false);
+		execute(context, listener);
+	}
 
-  /**
-   * Initializes the crash manager, but does not handle crash log. Use this 
-   * method only if you want to split the process into two parts, i.e. when
-   * your app has multiple entry points. You need to call the method 'execute' 
-   * at some point after this method. 
-   * 
-   * @param context The context to use. Usually your Activity object.
-   * @param urlString URL of the HockeyApp server.
-   * @param appIdentifier App ID of your app on HockeyApp.
-   * @param listener Implement for callback functions.
-   */
-  public static void initialize(Context context, String urlString, String appIdentifier, CrashManagerListener listener) {
-    initialize(context, urlString, appIdentifier, listener, true);
-  }
+	/**
+	 * Initializes the crash manager, but does not handle crash log. Use this method only if you want to split the process into two parts, i.e. when your app
+	 * has multiple entry points. You need to call the method 'execute' at some point after this method.
+	 * 
+	 * @param context
+	 *            The context to use. Usually your Activity object.
+	 * @param appIdentifier
+	 *            App ID of your app on HockeyApp.
+	 * @param listener
+	 *            Implement for callback functions.
+	 */
+	public static void initialize(Context context, String appIdentifier, CrashManagerListener listener) {
+		initialize(context, Constants.BASE_URL, appIdentifier, listener, true);
+	}
 
-  /**
-   * Executes the crash manager. You need to call this method if you have used
-   * the method 'initialize' before.
-   * 
-   * @param context The context to use. Usually your Activity object.
-   * @param listener Implement for callback functions.
-   */
-  public static void execute(Context context, CrashManagerListener listener) {
-    Boolean ignoreDefaultHandler = (listener != null) && (listener.ignoreDefaultHandler());
-    
-    int foundOrSend = hasStackTraces(context);
-    if (foundOrSend == 1) {
-      Boolean autoSend = false;
-      if (listener != null) {
-        autoSend = listener.onCrashesFound();
-      }
-      
-      if (!autoSend) {
-        showDialog(context, listener, ignoreDefaultHandler);
-      }
-      else {
-        sendCrashes(context, listener, ignoreDefaultHandler);
-      }
-    }
-    else if (foundOrSend == 2) {
-      sendCrashes(context, listener, ignoreDefaultHandler);
-    }
-    else {
-      registerHandler(context, listener, ignoreDefaultHandler);
-    }
-  }
-  
-  /**
-   * Checks if there are any saved stack traces in the files dir.
-   * 
-   * @param context The context to use. Usually your Activity object.
-   * @return 0 if there are no stack traces,
-   *         1 if there are any new stack traces, 
-   *         2 if there are confirmed stack traces
-   */
-  public static int hasStackTraces(Context context) {
+	/**
+	 * Initializes the crash manager, but does not handle crash log. Use this method only if you want to split the process into two parts, i.e. when your app
+	 * has multiple entry points. You need to call the method 'execute' at some point after this method.
+	 * 
+	 * @param context
+	 *            The context to use. Usually your Activity object.
+	 * @param urlString
+	 *            URL of the HockeyApp server.
+	 * @param appIdentifier
+	 *            App ID of your app on HockeyApp.
+	 * @param listener
+	 *            Implement for callback functions.
+	 */
+	public static void initialize(Context context, String urlString, String appIdentifier, CrashManagerListener listener) {
+		initialize(context, urlString, appIdentifier, listener, true);
+	}
+
+	/**
+	 * Executes the crash manager. You need to call this method if you have used the method 'initialize' before.
+	 * 
+	 * @param context
+	 *            The context to use. Usually your Activity object.
+	 * @param listener
+	 *            Implement for callback functions.
+	 */
+	public static void execute(Context context, CrashManagerListener listener) {
+		Boolean ignoreDefaultHandler = (listener != null) && (listener.ignoreDefaultHandler());
+
+		int foundOrSend = hasStackTraces(context);
+		if (foundOrSend == 1) {
+			Boolean autoSend = false;
+			if (listener != null) {
+				autoSend = listener.onCrashesFound();
+			}
+
+			if (!autoSend) {
+				showDialog(context, listener, ignoreDefaultHandler);
+			} else {
+				sendCrashes(context, listener, ignoreDefaultHandler);
+			}
+		} else if (foundOrSend == 2) {
+			sendCrashes(context, listener, ignoreDefaultHandler);
+		} else {
+			registerHandler(context, listener, ignoreDefaultHandler);
+		}
+	}
+
+	/**
+	 * Checks if there are any saved stack traces in the files dir.
+	 * 
+	 * @param context
+	 *            The context to use. Usually your Activity object.
+	 * @return 0 if there are no stack traces, 1 if there are any new stack traces, 2 if there are confirmed stack traces
+	 */
+	public static int hasStackTraces(Context context) {
     String[] filenames = searchForStackTraces();
     List<String> confirmedFilenames = null;
     int result = 0;
@@ -210,13 +216,15 @@ public class CrashManager {
     return result;
   }
 
-  /**
-   * Submits all stack traces in the files dir to HockeyApp.
-   * 
-   * @param context The context to use. Usually your Activity object.
-   * @param listener Implement for callback functions.
-   */
-  public static void submitStackTraces(Context context, CrashManagerListener listener) {
+	/**
+	 * Submits all stack traces in the files dir to HockeyApp.
+	 * 
+	 * @param context
+	 *            The context to use. Usually your Activity object.
+	 * @param listener
+	 *            Implement for callback functions.
+	 */
+	public static void submitStackTraces(Context context, CrashManagerListener listener) {
     Log.d(Constants.TAG, "Looking for exceptions in: " + Constants.FILES_PATH);
     String[] list = searchForStackTraces();
     Boolean successful = false;
@@ -268,88 +276,85 @@ public class CrashManager {
         }
       }
     }
-  } 
-
-  /**
-   * Deletes all stack traces and meta files from files dir.
-   * 
-   * @param context The context to use. Usually your Activity object.
-   */
-  public static void deleteStackTraces(Context context) {
-    Log.d(Constants.TAG, "Looking for exceptions in: " + Constants.FILES_PATH);
-    String[] list = searchForStackTraces();
-
-    if ((list != null) && (list.length > 0)) {
-      Log.d(Constants.TAG, "Found " + list.length + " stacktrace(s).");
-
-      for (int index = 0; index < list.length; index++) {
-        try {
-          Log.d(Constants.TAG, "Delete stacktrace " + list[index] + ".");
-          deleteStackTrace(context, list[index]);
-          context.deleteFile(list[index]);
-        } 
-        catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    }
   }
-  
-  /**
-   * Private method to initialize the crash manager. This method has an 
-   * additional parameter to decide whether to register the exception handler
-   * at the end or not.
-   */
-  private static void initialize(Context context, String urlString, String appIdentifier, CrashManagerListener listener, boolean registerHandler) {
-    CrashManager.urlString = urlString;
-    CrashManager.identifier = appIdentifier;
+	/**
+	 * Deletes all stack traces and meta files from files dir.
+	 * 
+	 * @param context
+	 *            The context to use. Usually your Activity object.
+	 */
+	public static void deleteStackTraces(Context context) {
+		Log.d(Constants.TAG, "Looking for exceptions in: " + Constants.FILES_PATH);
+		String[] list = searchForStackTraces();
 
-    Constants.loadFromContext(context);
-    
-    if (CrashManager.identifier == null) {
-      CrashManager.identifier = Constants.APP_PACKAGE;
-    }
-    
-    if (registerHandler) {
-      Boolean ignoreDefaultHandler = (listener != null) && (listener.ignoreDefaultHandler());
-      registerHandler(context, listener, ignoreDefaultHandler);
-    }
-  }
+		if ((list != null) && (list.length > 0)) {
+			Log.d(Constants.TAG, "Found " + list.length + " stacktrace(s).");
 
-  /**
-   * Shows a dialog to ask the user whether he wants to send crash reports to 
-   * HockeyApp or delete them.
-   */
-  private static void showDialog(final Context context, final CrashManagerListener listener, final boolean ignoreDefaultHandler) {
-    if (context == null) {
-      return;
-    }
+			for (int index = 0; index < list.length; index++) {
+				try {
+					Log.d(Constants.TAG, "Delete stacktrace " + list[index] + ".");
+					deleteStackTrace(context, list[index]);
+					context.deleteFile(list[index]);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
-    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-    builder.setTitle(Strings.get(listener, Strings.CRASH_DIALOG_TITLE_ID));
-    builder.setMessage(Strings.get(listener, Strings.CRASH_DIALOG_MESSAGE_ID));
+	/**
+	 * Private method to initialize the crash manager. This method has an additional parameter to decide whether to register the exception handler at the end or
+	 * not.
+	 */
+	private static void initialize(Context context, String urlString, String appIdentifier, CrashManagerListener listener,
+			boolean registerHandler) {
+		CrashManager.urlString = urlString;
+		CrashManager.identifier = appIdentifier;
 
-    builder.setNegativeButton(Strings.get(listener, Strings.CRASH_DIALOG_NEGATIVE_BUTTON_ID), new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        deleteStackTraces(context);
-        registerHandler(context, listener, ignoreDefaultHandler);
-      } 
-    });
+		Constants.loadFromContext(context);
 
-    builder.setPositiveButton(Strings.get(listener, Strings.CRASH_DIALOG_POSITIVE_BUTTON_ID), new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        sendCrashes(context, listener, ignoreDefaultHandler);
-      } 
-    });
+		if (CrashManager.identifier == null) {
+			CrashManager.identifier = Constants.APP_PACKAGE;
+		}
 
-    builder.create().show();
-  }
-  
-  /**
-   * Starts thread to send crashes to HockeyApp, then registers the exception 
-   * handler. 
-   */
-  private static void sendCrashes(final Context context, final CrashManagerListener listener, final boolean ignoreDefaultHandler) {
+		if (registerHandler) {
+			Boolean ignoreDefaultHandler = (listener != null) && (listener.ignoreDefaultHandler());
+			registerHandler(context, listener, ignoreDefaultHandler);
+		}
+	}
+
+	/**
+	 * Shows a dialog to ask the user whether he wants to send crash reports to HockeyApp or delete them.
+	 */
+	private static void showDialog(final Context context, final CrashManagerListener listener, final boolean ignoreDefaultHandler) {
+		if (context == null) {
+			return;
+		}
+
+		// AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		// builder.setTitle(Strings.get(listener, Strings.CRASH_DIALOG_TITLE_ID));
+		// builder.setMessage(Strings.get(listener, Strings.CRASH_DIALOG_MESSAGE_ID));
+		//
+		// builder.setNegativeButton(Strings.get(listener, Strings.CRASH_DIALOG_NEGATIVE_BUTTON_ID), new DialogInterface.OnClickListener() {
+		// public void onClick(DialogInterface dialog, int which) {
+		// deleteStackTraces(context);
+		// registerHandler(context, listener, ignoreDefaultHandler);
+		// }
+		// });
+		//
+		// builder.setPositiveButton(Strings.get(listener, Strings.CRASH_DIALOG_POSITIVE_BUTTON_ID), new DialogInterface.OnClickListener() {
+		// public void onClick(DialogInterface dialog, int which) {
+		sendCrashes(context, listener, ignoreDefaultHandler);
+		// }
+		// });
+		//
+		// builder.create().show();
+	}
+
+	/**
+	 * Starts thread to send crashes to HockeyApp, then registers the exception handler.
+	 */
+	private static void sendCrashes(final Context context, final CrashManagerListener listener, final boolean ignoreDefaultHandler) {
     saveConfirmedStackTraces(context);
     
     new Thread() {
@@ -361,128 +366,120 @@ public class CrashManager {
     }.start();
   }
 
-  /**
-   * Registers the exception handler. 
-   */
-  private static void registerHandler(Context context, CrashManagerListener listener, boolean ignoreDefaultHandler) {
-    if ((Constants.APP_VERSION != null) && (Constants.APP_PACKAGE != null)) {
-      // Get current handler
-      UncaughtExceptionHandler currentHandler = Thread.getDefaultUncaughtExceptionHandler();
-      if (currentHandler != null) {
-        Log.d(Constants.TAG, "Current handler class = " + currentHandler.getClass().getName());
-      }
-  
-      // Register if not already registered
-      if (!(currentHandler instanceof ExceptionHandler)) {
-        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(currentHandler, listener, ignoreDefaultHandler));
-      }
-    }
-    else {
-      Log.d(Constants.TAG, "Exception handler not set because version or package is null.");
-    }
-  }
+	/**
+	 * Registers the exception handler.
+	 */
+	private static void registerHandler(Context context, CrashManagerListener listener, boolean ignoreDefaultHandler) {
+		if ((Constants.APP_VERSION != null) && (Constants.APP_PACKAGE != null)) {
+			// Get current handler
+			UncaughtExceptionHandler currentHandler = Thread.getDefaultUncaughtExceptionHandler();
+			if (currentHandler != null) {
+				Log.d(Constants.TAG, "Current handler class = " + currentHandler.getClass().getName());
+			}
 
-  /**
-   * Returns the complete URL for the HockeyApp API. 
-   */
-  private static String getURLString() {
-    return urlString + "api/2/apps/" + identifier + "/crashes/";      
-  }
-  
-  /**
-   * Deletes the give filename and all corresponding files (same name, 
-   * different extension).
-   */
-  private static void deleteStackTrace(Context context, String filename) {
-    context.deleteFile(filename);
-    
-    String user = filename.replace(".stacktrace", ".user");
-    context.deleteFile(user);
-    
-    String contact = filename.replace(".stacktrace", ".contact");
-    context.deleteFile(contact);
-    
-    String description = filename.replace(".stacktrace", ".description");
-    context.deleteFile(description);
-  }
+			// Register if not already registered
+			if (!(currentHandler instanceof ExceptionHandler)) {
+				Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(currentHandler, listener, ignoreDefaultHandler));
+			}
+		} else {
+			Log.d(Constants.TAG, "Exception handler not set because version or package is null.");
+		}
+	}
 
-  /**
-   * Returns the content of a file as a string. 
-   */
-  private static String contentsOfFile(Context context, String filename) {
-    StringBuilder contents = new StringBuilder();
-    BufferedReader reader = null;
-    try {
-      reader = new BufferedReader(new InputStreamReader(context.openFileInput(filename)));
-      String line = null;
-      while ((line = reader.readLine()) != null) {
-        contents.append(line);
-        contents.append(System.getProperty("line.separator"));
-      }
-    }
-    catch (FileNotFoundException e) {
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-    }
-    finally {
-      if (reader != null) {
-        try { 
-          reader.close(); 
-        } 
-        catch (IOException ignored) { 
-        }
-      }
-    }
-    
-    return contents.toString();
-  }
-  
-  /**
-   * Saves the list of the stack traces' file names in shared preferences.  
-   */
-  private static void saveConfirmedStackTraces(Context context) {
-    try {
-      String[] filenames = searchForStackTraces();
-      SharedPreferences preferences = context.getSharedPreferences("HockeySDK", Context.MODE_PRIVATE);
-      Editor editor = preferences.edit();
-      editor.putString("ConfirmedFilenames", joinArray(filenames, "|"));
-      editor.commit();
-    }
-    catch (Exception e) {
-      // Just in case, we catch all exceptions here
-    }
-  }
-  
-  /**
-   * Returns a string created by each element of the array, separated by 
-   * delimiter. 
-   */
-  private static String joinArray(String[] array, String delimiter) {
-    StringBuffer buffer = new StringBuffer();
-    for (int index = 0; index < array.length; index++) {
-      buffer.append(array[index]);
-      if (index < array.length - 1) {
-        buffer.append(delimiter);
-      }
-    }
-    return buffer.toString();
-  }
+	/**
+	 * Returns the complete URL for the HockeyApp API.
+	 */
+	private static String getURLString() {
+		return urlString + "api/2/apps/" + identifier + "/crashes/";
+	}
 
-  /**
-   * Searches .stacktrace files and returns then as array. 
-   */
-  private static String[] searchForStackTraces() {
-    // Try to create the files folder if it doesn't exist
-    File dir = new File(Constants.FILES_PATH + "/");
-    dir.mkdir();
+	/**
+	 * Deletes the give filename and all corresponding files (same name, different extension).
+	 */
+	private static void deleteStackTrace(Context context, String filename) {
+		context.deleteFile(filename);
 
-    // Filter for ".stacktrace" files
-    FilenameFilter filter = new FilenameFilter() { 
-      public boolean accept(File dir, String name) {
-        return name.endsWith(".stacktrace"); 
-      } 
-    }; 
-    return dir.list(filter); 
-  }
+		String user = filename.replace(".stacktrace", ".user");
+		context.deleteFile(user);
+
+		String contact = filename.replace(".stacktrace", ".contact");
+		context.deleteFile(contact);
+
+		String description = filename.replace(".stacktrace", ".description");
+		context.deleteFile(description);
+	}
+
+	/**
+	 * Returns the content of a file as a string.
+	 */
+	private static String contentsOfFile(Context context, String filename) {
+		StringBuilder contents = new StringBuilder();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(context.openFileInput(filename)));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				contents.append(line);
+				contents.append(System.getProperty("line.separator"));
+			}
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException ignored) {
+				}
+			}
+		}
+
+		return contents.toString();
+	}
+
+	/**
+	 * Saves the list of the stack traces' file names in shared preferences.
+	 */
+	private static void saveConfirmedStackTraces(Context context) {
+		try {
+			String[] filenames = searchForStackTraces();
+			SharedPreferences preferences = context.getSharedPreferences("HockeySDK", Context.MODE_PRIVATE);
+			Editor editor = preferences.edit();
+			editor.putString("ConfirmedFilenames", joinArray(filenames, "|"));
+			editor.commit();
+		} catch (Exception e) {
+			// Just in case, we catch all exceptions here
+		}
+	}
+
+	/**
+	 * Returns a string created by each element of the array, separated by delimiter.
+	 */
+	private static String joinArray(String[] array, String delimiter) {
+		StringBuffer buffer = new StringBuffer();
+		for (int index = 0; index < array.length; index++) {
+			buffer.append(array[index]);
+			if (index < array.length - 1) {
+				buffer.append(delimiter);
+			}
+		}
+		return buffer.toString();
+	}
+
+	/**
+	 * Searches .stacktrace files and returns then as array.
+	 */
+	private static String[] searchForStackTraces() {
+		// Try to create the files folder if it doesn't exist
+		File dir = new File(Constants.FILES_PATH + "/");
+		dir.mkdir();
+
+		// Filter for ".stacktrace" files
+		FilenameFilter filter = new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".stacktrace");
+			}
+		};
+		return dir.list(filter);
+	}
 }
