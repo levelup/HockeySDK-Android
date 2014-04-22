@@ -61,10 +61,10 @@ public class VersionHelper {
   
   private void loadVersions(String infoJSON) {
     this.newest = new JSONObject();
+    this.sortedVersions = new ArrayList<JSONObject>();
 
     try {
       JSONArray versions = new JSONArray(infoJSON);
-      this.sortedVersions = new ArrayList<JSONObject>();
       
       int versionCode = listener.getCurrentVersionCode();
       for (int index = 0; index < versions.length(); index++) {
